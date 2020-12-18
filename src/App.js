@@ -29,7 +29,7 @@ function App() {
             console.log(error)
         })
 
-        console.log(typeof amount)
+        console.log('customerId',id)
       
             window.paysafe.checkout.setup("cHVibGljLTc3NTE6Qi1xYTItMC01ZjAzMWNiZS0wLTMwMmQwMjE1MDA4OTBlZjI2MjI5NjU2M2FjY2QxY2I0YWFiNzkwMzIzZDJmZDU3MGQzMDIxNDUxMGJjZGFjZGFhNGYwM2Y1OTQ3N2VlZjEzZjJhZjVhZDEzZTMwNDQ=", {
               "singleUseCustomerToken	": token,
@@ -117,10 +117,8 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        ROIIM
-      </header>
-      <div>
+      <h3>ROIIM Assignment</h3>
+      <div className="box">
         <div>
           <label>Username</label>
           <input
@@ -167,14 +165,8 @@ function App() {
         </div>
 
         <div>
-          <button
-            // ref={this.btnRef}
-            // className="ui button"
-            onClick={makePayment}
-            tabIndex="0"
-          >
-            Donate
-							</button>
+
+            <input type="submit" value="Pay" onClick={makePayment}></input>
         </div>
 
       </div>
