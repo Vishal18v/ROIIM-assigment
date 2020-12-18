@@ -32,23 +32,23 @@ async function createPaysafeId(email) {
     try {
         await axios({
             method: 'post',
-            url: 'https://private-anon-da36cd760f-paysafeapipaymenthubv1.apiary-mock.com/paymenthub/v1/customers',
+            url: 'https://api.test.paysafe.com/paymenthub/v1/customers',
             data: {
                 merchantCustomerId: email,
                 locale: "en_US",
-                firstName: "John",
-                middleName: "James",
-                lastName: "Smith",
+                firstName: "Google",
+                middleName: "Microsoft",
+                lastName: "Apple",
                 dateOfBirth: {
                     year: 1981,
                     month: 10,
                     day: 24
                 },
-                email: "john.smith@email.com",
+                email: email,
                 phone: "777-444-8888",
                 ip: "192.0.126.111",
                 gender: "M",
-                nationality: "Canadian",
+                nationality: "Indian",
                 cellPhone: "777-555-8888"
             },
             headers: headers
@@ -66,14 +66,14 @@ async function createPaysafeId(email) {
     return paysafeId
 }
 
-async function createToken(paysafeId){
+async function createToken(paysafeId,email){
     let token
     try{
         await axios({
             method: 'post',
-            url: 'https://private-anon-da36cd760f-paysafeapipaymenthubv1.apiary-mock.com/paymenthub/v1/customers/' + paysafeId + '/singleusecustomertokens',
+            url: 'https://api.test.paysafe.com/paymenthub/v1/customers/' + paysafeId + '/singleusecustomertokens',
             data: {
-                    merchantRefNum:"Ref123",
+                    merchantRefNum: email,
                     paymentTypes: ["CARD"],
             },
             headers: headers
@@ -113,14 +113,15 @@ app.use("/token", (req, res) => {
                     } else {
                         console.log("newuser", newUser)
                         let token = await createToken(newUser.paysafeId)
-                        res.send({token: token})
+                        res.send({token: token,id: paysafeId})
                     }
                 })
 
             } else {
                 console.log("user hai")
-                let token = await createToken(user.paysafeId)
-                res.send({token: token})
+                let token = await createToken(user.paysafeId,user.email)
+                //console.log(token, user.paysafeId)
+                res.send({token: token, id:user.paysafeId})
                     
                 
             }
@@ -134,14 +135,15 @@ app.use("/token", (req, res) => {
 async function payment(req) {
     let result = await  axios({
         method: 'post',
-        url: 'https://private-anon-da36cd760f-paysafeapipaymenthubv1.apiary-mock.com/paymenthub/v1/payments',
-        data: {
-                "merchantRefNum":"Ref123",
-                "amount": req.body,
-                "currencyCode": "USD",
-                "paymentHandleToken": req.token,
-                "description": "Payment"
-        },
+        url: 'https://api.test.paysafe.com/paymenthub/v1/payments',
+        data: req.body,
+        // data: {
+        //         "merchantRefNum":"Ref123",
+        //         "amount": req.body,
+        //         "currencyCode": "USD",
+        //         "paymentHandleToken": req.token,
+        //         "description": "Payment"
+        // },
         headers: headers
     })
     // .then((response) => {
