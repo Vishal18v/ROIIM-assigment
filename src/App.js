@@ -12,6 +12,7 @@ function App() {
   const makePayment = async(event) => {
     event.preventDefault()
           let token
+          let id
           await axios({
             method: 'post',
             url: 'http://localhost:5000/token',
@@ -22,15 +23,19 @@ function App() {
         .then((response) => {
             //console.log(response)
             token = response.data.token
+            id = response.data.id
             console.log("tokendb",token)
         }).catch((error) => {
             console.log(error)
         })
+
+        console.log(typeof amount)
       
             window.paysafe.checkout.setup("cHVibGljLTc3NTE6Qi1xYTItMC01ZjAzMWNiZS0wLTMwMmQwMjE1MDA4OTBlZjI2MjI5NjU2M2FjY2QxY2I0YWFiNzkwMzIzZDJmZDU3MGQzMDIxNDUxMGJjZGFjZGFhNGYwM2Y1OTQ3N2VlZjEzZjJhZjVhZDEzZTMwNDQ=", {
               "singleUseCustomerToken	": token,
+              "customerId": id,
               "currency": "USD",
-              "amount": amount,
+              "amount": parseInt(amount)*100,
               "locale": "en_US",
               "customer": {
                   "firstName": name,
@@ -53,35 +58,15 @@ function App() {
                   "state": "CA"
               },
               "environment": "TEST",
-              "merchantRefNum": "1559900597607",
-              "canEditAmount": true,
-              "payout": true, 
+              "merchantRefNum": email,
+              "canEditAmount": false,
               "payoutConfig":{
                   "maximumAmount": 100000
                   },
-              "displayPaymentMethods":["skrill","card","instantach"],
+              "displayPaymentMethods":["card"],
               "paymentMethodDetails": {
-                  "sightline": {
-                      "consumerId": "123456"
-                  },
-                  "skrill": {
-                      "consumerId": "john.doe@email.com",
-                      "emailSubject": "Skrill Payout",
-                      "emailMessage": "Your Skrill Payout request has been processed"
-                  },
-                  "instantach": {
-                      "consumerId": "john.doe@email.com",
-                      "paymentId": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
-                      "emailSubject": "Instant ACH Payout",
-                      "emailMessage": "Your Instant ACH Payout request has been processed"
-                  },
-                  "vippreferred":{
-                      "consumerId": "550726575"
-                  },
-                  "paypal": {
-                      "consumerId": "sb-cpfxo1472281@personal.example.com",
-                      "consumerMessage": "Paysafe note to payer",
-                      "recipientType": "PAYPAL_ID"
+                  "paysafecard": {
+                      "consumerId": id
                   }
               }
           }, function(instance, error, result) {
@@ -89,13 +74,17 @@ function App() {
                   console.log(result)
                   console.log(result.paymentHandleToken);
                   // make AJAX call to Payments API
+
+                  result["merchantRefNum"] = email;
+                  result["currency"] = "USD";
+                  result["custId"] = id;
                   axios({
                     method: 'post',
                     url: 'http://localhost:5000/payment',
-                    data: {
-                            "token": result.paymentHandleToken,
-                            "amount": result.amount,
-                    },
+                    data: result
+                    
+                    // "token": result.paymentHandleToken,
+                    // "amount": result.amount,
                 })
                 .then((result) => {
                   console.log(result)
